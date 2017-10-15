@@ -1,0 +1,22 @@
+Asset Hotloading
+    - Platform Texture
+Dependancy Injection
+    - Interfaces
+            - ICanHazDependancies
+            - IDependancy
+            - IDependancyMapper
+Making a Debug Console
+    - Creating the DebugConsoleKernel
+    - Creating debug console commands
+    - Loading debug console commands automatically using reflection
+    - Showing / Hiding the console at runtime
+Record and Playback
+Coroutines
+Logging
+Object Pools
+DebugViews and StackableStackMachines
+Multithreaded resource loading
+
+
+
+
