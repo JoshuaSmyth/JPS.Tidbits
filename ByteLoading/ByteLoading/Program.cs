@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,8 +11,11 @@ using System.Diagnostics;
 
 namespace ByteLoading
 {
-    struct MyData
+    [StructLayout(LayoutKind.Sequential)]
+    unsafe struct MyData
     {
+        public const Int32 SIZE = 16;
+
         public Int32 FieldOne;
 
         public Int32 FieldTwo;
@@ -36,13 +40,60 @@ namespace ByteLoading
                         && obj1.FieldFour == obj2.FieldFour);
         }
 
+        public static bool operator== (MyData* obj1, MyData obj2)
+        {
+            return (obj1->FieldOne == obj2.FieldOne 
+                        && obj1->FieldTwo == obj2.FieldTwo 
+                        && obj1->FieldThree == obj2.FieldThree
+                        && obj1->FieldFour == obj2.FieldFour);
+        }
+
+        public static bool operator!= (MyData* obj1, MyData obj2)
+        {
+            return (obj1->FieldOne != obj2.FieldOne 
+                        && obj1->FieldTwo != obj2.FieldTwo 
+                        && obj1->FieldThree != obj2.FieldThree
+                        && obj1->FieldFour != obj2.FieldFour);
+        }
+    }
+
+    class MyDataFixedCollection
+    {
+        readonly byte[] m_MyData;
+        public MyDataFixedCollection(byte[] myData) {
+            m_MyData = myData;
+        }
+
+        public unsafe MyData* GetMyData(int i) {
+            var index = i * MyData.SIZE;
+            fixed(byte* p = &m_MyData[index])
+            {
+                return (MyData*)p;
+            }
+        }
+        public Int32 Length {
+            get {
+                return m_MyData.Length / MyData.SIZE;
+            }
+        }
+
+        public unsafe MyData* this[int index]
+        {  
+            get {
+                var ix = index * MyData.SIZE;
+                fixed(byte* p = &m_MyData[ix])
+                {
+                    return (MyData*)p;
+                }
+            }
+        }  
     }
 
     class Program
     {
-        static void Main(string[] args)
+        static unsafe void Main(string[] args)
         {
-            const int length = 1000000;
+            const int length = 10000000;
             var data = GetRandomData(length); // 1 Million
             
             var d1 = UsingBinaryWriter(data);
@@ -68,20 +119,40 @@ namespace ByteLoading
 
             // Reading
             {
-                var d3 = ReadBytes(length,d1);
-                var correct = true;
-                for(int i=0;i<data.Length;i++)
                 {
-                    if (d3[i] != data[i])
+                    var d3 = ReadBytes(length,d1);
+                    var correct = true;
+                    for(int i=0;i<data.Length;i++)
                     {
-                        correct = false;
-                        break;
+                        
+                        if (d3[i] != data[i])
+                        {
+                            correct = false;
+                            break;
+                        }
+                    }
+                    if (correct == false)
+                    {
+                        Console.WriteLine("Serial Forms Don't Agree");
                     }
                 }
 
-                if (correct == false)
                 {
-                    Console.WriteLine("Serial Forms Don't Agree");
+                    var d4 = ReadByteCollection(length, d1);
+                    var correct = true;
+                    
+                    for(int i=0;i<d4.Length;i++)
+                    {
+                        if (d4[i] != data[i])
+                        {
+                            correct = false;
+                            break;
+                        }
+                    }
+                    if (correct == false)
+                    {
+                        Console.WriteLine("Serial Forms Don't Agree");
+                    }
                 }
             }
 
@@ -115,6 +186,28 @@ namespace ByteLoading
             return bytes;
         }
 
+        static MyDataFixedCollection ReadByteCollection(Int32 length, byte[] src) {
+            Console.WriteLine("Using Fixed Collection");
+            var sw = new Stopwatch();
+            sw.Start();
+            //var rv = new MyData[length];
+            //using(var ms = new MemoryStream((src))) {
+            //    using(var br = new BinaryReader(ms))
+            //    {
+            //        for(int i=0;i<length;i++) {
+            //         rv[i].FieldOne = br.ReadInt32();
+            //         rv[i].FieldTwo = br.ReadInt32();
+            //         rv[i].FieldThree = br.ReadInt32();
+            //         rv[i].FieldFour = br.ReadInt32();
+            //        }
+            //    }
+            //}
+            sw.Stop();
+            Console.WriteLine("Time Take: " + sw.ElapsedMilliseconds + "ms");
+
+            return new MyDataFixedCollection(src);
+        }
+
         static MyData[] ReadBytes(Int32 length, byte[] src) {
             Console.WriteLine("Using Binary Reader");
             var sw = new Stopwatch();
@@ -133,7 +226,6 @@ namespace ByteLoading
             }
             sw.Stop();
             Console.WriteLine("Time Take: " + sw.ElapsedMilliseconds + "ms");
-
 
             return rv;
         }
