@@ -190,22 +190,14 @@ namespace ByteLoading
             Console.WriteLine("Using Fixed Collection");
             var sw = new Stopwatch();
             sw.Start();
-            //var rv = new MyData[length];
-            //using(var ms = new MemoryStream((src))) {
-            //    using(var br = new BinaryReader(ms))
-            //    {
-            //        for(int i=0;i<length;i++) {
-            //         rv[i].FieldOne = br.ReadInt32();
-            //         rv[i].FieldTwo = br.ReadInt32();
-            //         rv[i].FieldThree = br.ReadInt32();
-            //         rv[i].FieldFour = br.ReadInt32();
-            //        }
-            //    }
-            //}
-            sw.Stop();
+
+          
             Console.WriteLine("Time Take: " + sw.ElapsedMilliseconds + "ms");
 
-            return new MyDataFixedCollection(src);
+            var rv = new MyDataFixedCollection(src);
+              sw.Stop();
+
+            return rv;
         }
 
         static MyData[] ReadBytes(Int32 length, byte[] src) {
