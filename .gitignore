@@ -21,3 +21,9 @@ RayCasterGDI/RayCasterGDI/obj/x86/Debug/RayCasterGDI.csproj.FileListAbsolute.txt
 Xna.Instancing/Instancing Sample/Instancing Sample/Instancing Sample/bin/
 Xna.Instancing/Instancing Sample/Instancing Sample/Instancing Sample/obj/
 Xna.Instancing/Instancing Sample/Instancing Sample/Instancing SampleContent/obj/
+Xna.ResourcePacking/ResourcePacking/ResourcePacking/bin/
+Xna.ResourcePacking/ResourcePacking/ResourcePacking/obj/
+Xna.ResourcePacking/ResourcePacking/ResourcePackingContent/obj/
+Xna.ResourcePacking/TextureExtension/bin/
+Xna.ResourcePacking/TextureExtension/obj/
+*.cachefile
